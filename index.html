@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Approximate Nearest Neighbor Field</title>
+		<script type="text/javascript" src="d3.js"></script>
+	</head>
+		<script type="text/javascript">
+			d3.csv("vis.csv", function(data) {
+				var dot_data = Array();
+				var line_data = Array();
+				var field_with_line_data = Array();
+				// Data filtering and clustering.
+				for (idx = 0; idx < data.length; idx++) {
+					data[idx]["X1"] = parseFloat( data[idx]["X1"] );
+					data[idx]["Y1"] = parseFloat( data[idx]["Y1"] );
+					data[idx]["X2"] = parseFloat( data[idx]["X2"] );
+					data[idx]["Y2"] = parseFloat( data[idx]["Y2"] );
+					data[idx]["XMid"] = parseFloat( data[idx]["XMid"] );
+					data[idx]["YMid"] = parseFloat( data[idx]["YMid"] );
+					data[idx]["X3"] = parseFloat( data[idx]["X3"] );
+					data[idx]["Y3"] = parseFloat( data[idx]["Y3"] );
+					data[idx]["X4"] = parseFloat( data[idx]["X4"] );
+					data[idx]["Y4"] = parseFloat( data[idx]["Y4"] );
+					data[idx]["X5"] = parseFloat( data[idx]["X5"] );
+					data[idx]["Y5"] = parseFloat( data[idx]["Y5"] );
+					data[idx]["X6"] = parseFloat( data[idx]["X6"] );
+					data[idx]["Y6"] = parseFloat( data[idx]["Y6"] );
+					if (data[idx]["Label1"] == "Dot")
+						dot_data.push(data[idx]);
+					else if (data[idx]["Label1"] == "Line")
+						line_data.push(data[idx]);
+					else {
+						field_with_line_data.push(data[idx]);
+					}
+				}
+				// Setup SVG canvas.
+				var size = 4500;
+				var svg1 = d3.select("body")
+							 .append("svg")
+							 .attr("width", size)
+							 .attr("height", size);
+				// Reverse y axis to fit the convention followed by SVG formate and code.
+				var y_scale = d3.scaleLinear()
+								.domain([0, 5000])
+								.range([5000, 0]) 
+				// Setup the background color.
+				svg1.selectAll("background")
+					.data([1])
+					.enter()
+					.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", size)
+					.attr("height", size)
+					.attr("fill", "white");
+				// Draw the Approximate Nearest Neighbor Field.
+				svg1.selectAll("field_with_line")
+					.data(field_with_line_data)
+					.enter()
+					.append("rect")
+					.attr("x", function(d) { return d["X1"] / 10 - 3350; })
+					.attr("y", function(d) { return y_scale(d["Y1"] / 10) - (d["Y2"] - d["Y1"]) / 10 - 2600; })
+					.attr("width", function(d) { return (d["X2"] - d["X1"]) / 10; })
+					.attr("height", function(d) { return (d["Y2"] - d["Y1"]) / 10; })
+					.attr("style", "stroke:white")
+					.attr("stroke-width", 2)
+					.attr("fill", "grey")
+					.attr("opacity", 0.25)
+					.on("mouseover", function(d) {
+						d3.select(this)
+						  .transition()
+						  .duration(1000)
+						  .attr("opacity", 0.8);
+						svg1.append("line")
+							.attr("id", "name1")
+							.attr("style", "stroke:white")
+							.attr("stroke-width", 2)
+							.attr("x1", d["XMid"] / 10 - 3350)
+							.attr("y1", y_scale(d["YMid"] / 10) - 2600)
+							.attr("x2", d["XMid"] / 10 - 3350)
+							.attr("y2", y_scale(d["YMid"] / 10) - 2600)
+							.transition()
+							.duration(1000)
+							.attr("x1", d["XMid"] / 10 - 5 - 3350)
+							.attr("y1", y_scale(d["YMid"] / 10) - 5 - 2600)
+							.attr("x2", d["XMid"] / 10 + 5 - 3350)
+							.attr("y2", y_scale(d["YMid"] / 10) + 5 - 2600);
+						svg1.append("line")
+							.attr("id", "name0")
+							.attr("x1", d["X3"] / 10 - 3350)
+							.attr("y1", y_scale(d["Y3"] / 10) - 2600)
+							.attr("x2", d["X4"] / 10 - 3350)
+							.attr("y2", y_scale(d["Y4"] / 10) - 2600)
+							.attr("style", "stroke:black")
+							.attr("stroke-width", 2.5)
+							.transition()
+							.duration(1000)
+							.attr("style", "stroke:royalblue")
+							.attr("stroke-width", 3.5);
+						svg1.append("line")
+							.attr("id", "name0")
+							.attr("x1", d["X5"] / 10 - 3350)
+							.attr("y1", y_scale(d["Y5"] / 10) - 2600)
+							.attr("x2", d["X6"] / 10 - 3350)
+							.attr("y2", y_scale(d["Y6"] / 10) - 2600)
+							.attr("style", "stroke:black")
+							.attr("stroke-width", 2.5)
+							.transition()
+							.duration(1000)
+							.attr("style", "stroke:hotpink")
+							.attr("stroke-width", 3.5);
+						svg1.append("line")
+							.attr("id", "name1")
+							.attr("style", "stroke:white")
+							.attr("stroke-width", 2)
+							.attr("x1", d["XMid"] / 10 - 3350)
+							.attr("y1", y_scale(d["YMid"] / 10) - 2600)
+							.attr("x2", d["XMid"] / 10 - 3350)
+							.attr("y2", y_scale(d["YMid"] / 10) - 2600)
+							.transition()
+							.duration(1000)
+							.attr("x1", d["XMid"] / 10 + 5 - 3350)
+							.attr("y1", y_scale(d["YMid"] / 10) - 5 - 2600)
+							.attr("x2", d["XMid"] / 10 - 5 - 3350)
+							.attr("y2", y_scale(d["YMid"] / 10) + 5 - 2600);
+					})
+					.on("mouseout", function(d) {
+						d3.select(this)
+						  .transition()
+						  .duration(500)
+						  .attr("opacity", 0.2);
+						svg1.selectAll("#name0")
+							.transition()
+							.duration(500)
+							.attr("stroke-width", 0)
+							.remove();
+						svg1.selectAll("#name1")
+							.transition()
+							.duration(500)
+							.attr("stroke-width", 0)
+							.remove();
+					});
+					// Draw the basic elements.
+					svg1.selectAll("line")
+						.data(line_data)
+						.enter()
+						.append("line")
+						.attr("x1", function(d) { return d["X1"] / 10 - 3350; })
+						.attr("y1", function(d) { return y_scale(d["Y1"] / 10) - 2600; })
+						.attr("x2", function(d) { return d["X2"] / 10 - 3350; })
+						.attr("y2", function(d) { return y_scale(d["Y2"] / 10) - 2600; })
+						.attr("style", "stroke:black")
+						.attr("stroke-width", 2);	
+			});
+		</script>
+	</body>
+</html>
